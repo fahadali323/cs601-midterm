@@ -1,10 +1,10 @@
 # app/history.py
-
 from typing import List
 from .calculation import Calculation
 from .calculator_config import CalculatorConfig
 
 cfg = CalculatorConfig()
+
 
 class HistoryManager:
     def __init__(self, max_size: int | None = None):
@@ -13,22 +13,24 @@ class HistoryManager:
 
     def append(self, calc: Calculation):
         self._history.append(calc)
-        if len(self.history) > self._max_size:
+        # enforce max size: drop oldest
+        if len(self._history) > self._max_size:
             self._history = self._history[-self._max_size :]
 
     def clear(self):
         self._history.clear()
 
     def list(self):
-        return list(self._history)  
-    
+        return list(self._history)  # return shallow copy
+
     def to_dataframe(self):
+        # Deferred import so module doesn't require pandas unless saving happens
         import pandas as pd
-        rows = [c.to_dict() for c in self.history]
+        rows = [c.to_dict() for c in self._history]
         return pd.DataFrame(rows)
 
-    def load_from_datafrom(self, df):
-        #Expect df to have operation, operand_1, operand2, result, timestamp
+    def load_from_dataframe(self, df):
+        # Expect df to have operation, operand_1, operand_2, result, timestamp
         from datetime import datetime
         self._history = []
         for _, row in df.iterrows():
@@ -39,6 +41,6 @@ class HistoryManager:
             ts_raw = row.get("timestamp")
             ts = datetime.fromisoformat(ts_raw) if isinstance(ts_raw, str) else ts_raw
             self._history.append(Calculation(operation=op, operands=(a, b), result=result, timestamp=ts))
-            
+
     def size(self):
         return len(self._history)

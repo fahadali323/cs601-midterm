@@ -1,10 +1,10 @@
 # app/calculator_config.py
-
-import os 
+import os
 from dataclasses import dataclass
 from dotenv import load_dotenv
 
-load_dotenv()  #Load from .env if present
+load_dotenv()  # load from .env if present
+
 
 @dataclass
 class CalculatorConfig:
