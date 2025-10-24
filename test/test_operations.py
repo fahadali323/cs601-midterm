@@ -2,6 +2,7 @@ import pytest
 from app.operations import OperationFactory
 from app.exceptions import OperationError
 
+
 @pytest.mark.parametrize(
     "op,a,b,expected",
     [
@@ -17,7 +18,23 @@ from app.exceptions import OperationError
         ("abs_diff", 10, 4, 6),
     ],
 )
-
-def test_operations(op,a,b, expected):
+def test_operations(op, a, b, expected):
     operation = OperationFactory.create(op, a, b)
-    assert round(operation.copute(), 6) == pytest.approx(expected, rel=1e-6)
+    assert round(operation.compute(), 6) == pytest.approx(expected, rel=1e-6)
+
+
+def test_divide_by_zero():
+    op = OperationFactory.create("divide", 5, 0)
+    with pytest.raises(OperationError):
+        op.compute()
+
+
+def test_root_of_negative_even():
+    with pytest.raises(OperationError):
+        op = OperationFactory.create("root", -16, 2)
+        op.compute()
+
+
+def test_invalid_operation():
+    with pytest.raises(OperationError):
+        OperationFactory.create("not_real_op", 2, 3)
