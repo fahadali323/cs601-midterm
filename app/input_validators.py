@@ -1,0 +1,24 @@
+# app/input_validators.py
+
+from typing import Tuple
+from .exceptions import ValidationError
+from .calculator_config import CalculatorConfig
+
+
+cfg = CalculatorConfig()
+
+def validate_numeric_pair(a,b) -> Tuple[float,float]:
+    """
+    Input: Validate two number inputs.
+    Return: Tuple of floats.
+    """
+    try:
+        a_f = float(a)
+        b_f = float(b)
+    except (TypeError, ValueError):
+        raise ValidationError(f"Inputs must be numeric: got {a!r}")
+
+    if abs(a_f) > cfg.max_input_value or abs(b_f) > cf.max_input_value:
+        raise ValidationError(f"Inputs must be <= {cfg.max_input_value} in absolute value")
+    
+    return a_f, b_f
