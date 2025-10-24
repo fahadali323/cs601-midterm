@@ -18,7 +18,7 @@ def validate_numeric_pair(a,b) -> Tuple[float,float]:
     except (TypeError, ValueError):
         raise ValidationError(f"Inputs must be numeric: got {a!r}")
 
-    if abs(a_f) > cfg.max_input_value or abs(b_f) > cf.max_input_value:
+    if abs(a_f) > cfg.max_input_value or abs(b_f) > cfg.max_input_value:
         raise ValidationError(f"Inputs must be <= {cfg.max_input_value} in absolute value")
     
     return a_f, b_f
