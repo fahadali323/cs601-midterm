@@ -67,7 +67,7 @@ def calculator_repl():
 {Fore.CYAN}Available Commands:
 -------------------
 {Fore.YELLOW}add a b{Fore.WHITE}           → Add two numbers
-{sub(Fore.YELLOW)}subtract a b{Fore.WHITE}      → Subtract two numbers
+{Fore.YELLOW}subtract a b{Fore.WHITE}      → Subtract two numbers
 {Fore.YELLOW}multiply a b{Fore.WHITE}      → Multiply two numbers
 {Fore.YELLOW}divide a b{Fore.WHITE}        → Divide two numbers
 {Fore.YELLOW}power a b{Fore.WHITE}         → Raise a to the power of b
