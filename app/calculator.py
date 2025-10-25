@@ -129,16 +129,24 @@ class Calculator:
         return self._caretaker.can_redo()
 
     def undo(self) -> Optional[List[Calculation]]:
-        prev_snapshot = self._caretaker.undo(self.history_manager.list())
+        # capture current snapshot to detect no-op undos
+        current_snapshot = self.history_manager.list()
+        prev_snapshot = self._caretaker.undo(current_snapshot)
         if prev_snapshot is None:
+            return None
+        # if undo would not change state, treat as no-op
+        if prev_snapshot == current_snapshot:
             return None
         # restore
         self.history_manager._history = prev_snapshot
         return self.history_manager.list()
 
     def redo(self) -> Optional[List[Calculation]]:
-        redo_snapshot = self._caretaker.redo(self.history_manager.list())
+        current_snapshot = self.history_manager.list()
+        redo_snapshot = self._caretaker.redo(current_snapshot)
         if redo_snapshot is None:
+            return None
+        if redo_snapshot == current_snapshot:
             return None
         self.history_manager._history = redo_snapshot
         return self.history_manager.list()

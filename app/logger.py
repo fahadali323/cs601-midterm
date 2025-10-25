@@ -36,6 +36,35 @@ class LoggingObserver:
 
     def update(self, calculation: Calculation) -> None:
         msg = f"{calculation.operation} | operands={calculation.operands} | result={calculation.result}"
+
+        # If tests or callers change a handler's baseFilename at runtime (tests do
+        # this to redirect logging to a tmp file), the handler's stream will still
+        # point to the original file. Detect that case and reopen the handler's
+        # stream so logs are written to the new file.
+        for handler in list(self._logger.handlers):
+            # File-like handlers (FileHandler, RotatingFileHandler) expose
+            # `baseFilename` and `stream` attributes.
+            if hasattr(handler, "baseFilename"):
+                try:
+                    desired = getattr(handler, "baseFilename")
+                    stream_name = getattr(getattr(handler, "stream", None), "name", None)
+                    if desired and stream_name != desired:
+                        try:
+                            # Close existing stream and reopen using the updated baseFilename
+                            handler.acquire()
+                            try:
+                                handler.close()
+                            finally:
+                                handler.release()
+                            # re-open stream using the handler internals
+                            if hasattr(handler, "_open"):
+                                handler.stream = handler._open()
+                        except Exception:
+                            # Don't let logging handler errors break the calculator
+                            pass
+                except Exception:
+                    pass
+
         self._logger.info(msg)
 
 
