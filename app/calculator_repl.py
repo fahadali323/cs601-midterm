@@ -23,22 +23,28 @@ exit – Exit the application gracefully.
 from app.calculator import Calculator
 from app.exceptions import OperationError, ValidationError
 from app.input_validators import validate_numeric_pair
+from colorama import Fore, Style, init
+
+# Initialize colorama for color support (works on Windows and UNIX)
+init(autoreset=True)
 
 
 def calculator_repl():
     """Main interactive REPL loop for the Calculator."""
     calc = Calculator()
+
     # Load existing history at startup
     try:
-        calc.load_history()  # Will use default path from config
+        calc.load_history()
     except Exception as e:
-        print(f"Note: Could not load previous history: {e}")
-    print("🧮 Welcome to the Advanced Calculator!")
-    print("Type 'help' for a list of commands, or 'exit' to quit.\n")
+        print(f"{Fore.YELLOW}Note: Could not load previous history: {e}")
+
+    print(f"{Fore.CYAN}🧮 Welcome to the Advanced Calculator!")
+    print(f"{Fore.CYAN}Type 'help' for a list of commands, or 'exit' to quit.\n")
 
     while True:
         try:
-            command_line = input("calc> ").strip()
+            command_line = input(f"{Fore.GREEN}calc> {Style.RESET_ALL}").strip()
             if not command_line:
                 continue
 
@@ -47,79 +53,77 @@ def calculator_repl():
 
             # Exit condition
             if command in ("exit", "quit"):
-                # Auto-save history before exiting
                 try:
-                    calc.save_history()  
+                    calc.save_history()
+                    print(f"{Fore.GREEN}History saved successfully before exit.")
                 except Exception as e:
-                    print(f"Warning: Could not save history: {e}")
-                print("Goodbye!")
+                    print(f"{Fore.YELLOW}Warning: Could not save history: {e}")
+                print(f"{Fore.CYAN}Goodbye!")
                 break
 
             # Help menu
             elif command == "help":
-                print(
-                    """
-Available Commands:
+                print(f"""
+{Fore.CYAN}Available Commands:
 -------------------
-add a b           → Add two numbers
-subtract a b      → Subtract two numbers
-multiply a b      → Multiply two numbers
-divide a b        → Divide two numbers
-power a b         → Raise a to the power of b
-root a b          → Compute the b-th root of a
-modulus a b       → Compute a % b
-int_divide a b    → Integer division
-percent a b       → (a / b) * 100
-abs_diff a b      → |a - b|
+{Fore.YELLOW}add a b{Fore.WHITE}           → Add two numbers
+{sub(Fore.YELLOW)}subtract a b{Fore.WHITE}      → Subtract two numbers
+{Fore.YELLOW}multiply a b{Fore.WHITE}      → Multiply two numbers
+{Fore.YELLOW}divide a b{Fore.WHITE}        → Divide two numbers
+{Fore.YELLOW}power a b{Fore.WHITE}         → Raise a to the power of b
+{Fore.YELLOW}root a b{Fore.WHITE}          → Compute the b-th root of a
+{Fore.YELLOW}modulus a b{Fore.WHITE}       → Compute a % b
+{Fore.YELLOW}int_divide a b{Fore.WHITE}    → Integer division
+{Fore.YELLOW}percent a b{Fore.WHITE}       → (a / b) * 100
+{Fore.YELLOW}abs_diff a b{Fore.WHITE}      → |a - b|
 -------------------
-history           → Show calculation history
-clear             → Clear calculation history
-undo              → Undo last calculation
-redo              → Redo last undone calculation
-save [path]       → Save history to CSV file
-load [path]       → Load history from CSV file
-help              → Show this help message
-exit              → Exit the program
-"""
-                )
+{Fore.MAGENTA}history{Fore.WHITE}           → Show calculation history
+{Fore.MAGENTA}clear{Fore.WHITE}             → Clear calculation history
+{Fore.MAGENTA}undo{Fore.WHITE}              → Undo last calculation
+{Fore.MAGENTA}redo{Fore.WHITE}              → Redo last undone calculation
+{Fore.MAGENTA}save [path]{Fore.WHITE}       → Save history to CSV file
+{Fore.MAGENTA}load [path]{Fore.WHITE}       → Load history from CSV file
+{Fore.MAGENTA}help{Fore.WHITE}              → Show this help message
+{Fore.MAGENTA}exit{Fore.WHITE}              → Exit the program
+""")
 
-            # History and persistence commands
+            # History commands
             elif command == "history":
                 history = calc.history()
                 if not history:
-                    print("No calculations yet.")
+                    print(f"{Fore.YELLOW}No calculations yet.")
                 else:
-                    print("\nCalculation History:")
+                    print(f"{Fore.CYAN}\nCalculation History:")
                     for i, c in enumerate(history, start=1):
-                        print(f"{i}. {c}")
+                        print(f"{Fore.WHITE}{i}. {Fore.GREEN}{c}")
 
             elif command == "clear":
                 calc.clear_history()
-                print("History cleared.")
+                print(f"{Fore.GREEN}History cleared successfully.")
 
             elif command == "undo":
                 if calc.can_undo():
                     calc.undo()
-                    print("Undo successful.")
+                    print(f"{Fore.GREEN}Undo successful.")
                 else:
-                    print("Nothing to undo.")
+                    print(f"{Fore.YELLOW}Nothing to undo.")
 
             elif command == "redo":
                 if calc.can_redo():
                     calc.redo()
-                    print("Redo successful.")
+                    print(f"{Fore.GREEN}Redo successful.")
                 else:
-                    print("Nothing to redo.")
+                    print(f"{Fore.YELLOW}Nothing to redo.")
 
             elif command == "save":
                 path = parts[1] if len(parts) > 1 else None
                 calc.save_history(path)
-                print("History saved successfully.")
+                print(f"{Fore.GREEN}History saved successfully.")
 
             elif command == "load":
                 path = parts[1] if len(parts) > 1 else None
                 calc.load_history(path)
-                print("History loaded successfully.")
+                print(f"{Fore.GREEN}History loaded successfully.")
 
             # Arithmetic commands
             elif command in (
@@ -128,20 +132,20 @@ exit              → Exit the program
                 "percent", "abs_diff",
             ):
                 if len(parts) != 3:
-                    print("Error: Operation requires two operands (e.g., add 2 3)")
+                    print(f"{Fore.RED}Error: Operation requires two operands (e.g., add 2 3)")
                     continue
 
                 a, b = validate_numeric_pair(parts[1], parts[2])
                 result_calc = calc.perform(command, a, b)
-                print(f"Result: {result_calc.result}")
+                print(f"{Fore.GREEN}Result: {Fore.WHITE}{result_calc.result}")
 
             else:
-                print(f"Unknown command: '{command}'. Type 'help' for available commands.")
+                print(f"{Fore.RED}Unknown command: '{command}'. Type 'help' for available commands.")
 
         except (OperationError, ValidationError) as e:
-            print(f"Error: {e}")
+            print(f"{Fore.RED}Error: {e}")
         except KeyboardInterrupt:
-            print("\nExiting. Goodbye!")
+            print(f"\n{Fore.CYAN}Exiting. Goodbye!")
             break
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"{Fore.RED}Unexpected error: {e}")
