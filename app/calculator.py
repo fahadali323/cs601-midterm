@@ -1,5 +1,5 @@
 # app/calculator.py
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 import os
 import math
@@ -68,7 +68,7 @@ class Calculator:
             operation=op_name,
             operands=(float(a), float(b)),
             result=result,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Save prior state for undo (save snapshot before modifying)
